@@ -59,7 +59,7 @@ The Lens Studio interface uses a graphite shell, locally served asset artwork an
 
 ### Dark mode
 
-![PayBox Lens overview in the purple dark theme with fictional data](docs/screenshots/light.png)
+![PayBox Lens overview in the graphite dark theme with fictional data](docs/screenshots/light.png)
 
 ## Sign in once, restore the local connection
 
@@ -191,7 +191,8 @@ PayBox Lens is independent. These links point to PayBox's own services and docs.
 
 ## Attribution
 
-Code: MIT (see LICENSE). Generated purple icon artwork is included. The supplied
+Code: MIT (see LICENSE). Original generated optical artwork and locally authored
+SVG asset badges are included; see [design and artwork provenance](docs/DESIGN.md). The supplied
 PayBox brand image is used for identification; PayBox trademarks remain with
 its owner and do not imply endorsement. [Powered by Routescan.io APIs](https://routescan.io)
 for supported keyless fallback requests; provider limits apply.
