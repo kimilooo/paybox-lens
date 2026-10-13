@@ -3,6 +3,10 @@
 An English financial dashboard for PayBox, built by **Kimiloo**. Independent
 community project; not an official PayBox product. MIT-licensed source.
 
+[Report a bug](https://github.com/kimilooo/paybox-lens/issues/new?template=bug_report.yml) ·
+[Contribute a pull request](CONTRIBUTING.md) ·
+[PayBox website](https://paybox.sh/) · [PayBox documentation](https://docs.paybox.sh/)
+
 > **Your local data stays yours.** When you install and run this app on your own
 > device, I, Kimiloo, do not receive your financial data, tokens, contacts or private
 > notes. There is no maintainer-controlled data collector or remote database.
@@ -27,6 +31,27 @@ npm dependencies. SQLite is built into Node. Dependencies installed by npm are
 for automated tests only. First launch shows clearly labeled fictional demo data.
 
 Full walkthrough: [local setup](docs/LOCAL_SETUP.md).
+
+## Screenshots
+
+Actual dashboard captures using **fictional demo data**, not a real account.
+These show the workspace UI; the remembered local sign-in flow is described below.
+
+### Overview — purple dark mode
+
+![PayBox Lens overview with fictional portfolio values and asset allocation](docs/screenshots/overview.png)
+
+| Portfolio & assets | Transactions & activity |
+| --- | --- |
+| ![Demo portfolio chart and holdings filters](docs/screenshots/portfolio.png) | ![Demo transactions with filters, labels and plain-English explanations](docs/screenshots/activity.png) |
+
+| Contacts & labels | Private mode |
+| --- | --- |
+| ![Fictional contact with manual tags and notes](docs/screenshots/contacts.png) | ![Private mode hiding balances, identifiers and chart shapes](docs/screenshots/private.png) |
+
+### Light mode
+
+![PayBox Lens overview in the purple light theme with fictional data](docs/screenshots/light.png)
 
 ## Sign in once, restore the local connection
 
@@ -115,6 +140,39 @@ networks/providers. Keys do not guarantee complete archival coverage.
 Tests use fictional fixtures and mocked OAuth/provider responses. Fresh local
 HTTP/SQLite checks verify installation and auth behavior; actual user PayBox
 consent, funds movement and long-term provider availability are not certified.
+
+## Bugs and pull requests welcome
+
+Found a bug or have an improvement? Please [open a bug report](https://github.com/kimilooo/paybox-lens/issues/new?template=bug_report.yml)
+or [submit a pull request](https://github.com/kimilooo/paybox-lens/compare).
+Include clear reproduction steps, expected behavior, your app/Node/browser versions
+and a redacted screenshot when useful. Reproduce with demo data where possible.
+Do not post tokens, database/key files, private notes or real account screenshots.
+Report security vulnerabilities using the route in [SECURITY.md](SECURITY.md).
+
+Start with [CONTRIBUTING.md](CONTRIBUTING.md) for the local workflow, project layout
+and checks to run before a pull request. Small fixes, documentation improvements,
+accessibility feedback and meaningful regression tests are welcome.
+
+## Official PayBox resources
+
+PayBox Lens is independent. These links point to PayBox's own services and docs.
+
+| Resource | Link |
+| --- | --- |
+| Website | [paybox.sh](https://paybox.sh/) |
+| PayBox app | [app.paybox.sh](https://app.paybox.sh/) |
+| Account settings & X connection | [PayBox settings](https://app.paybox.sh/settings) |
+| Documentation home | [docs.paybox.sh](https://docs.paybox.sh/) |
+| Getting started | [Initial setup](https://docs.paybox.sh/getting-started) |
+| Credentials & agents | [Core model and grants](https://docs.paybox.sh/concepts/model) |
+| Approvals & passkeys | [Approval modes](https://docs.paybox.sh/concepts/approvals) |
+| Request lifecycle | [Requests and their states](https://docs.paybox.sh/concepts/requests) |
+| MCP connector | [Connect an agent](https://docs.paybox.sh/connect/mcp) |
+| OAuth 2.1 | [App authorization with PKCE](https://docs.paybox.sh/connect/oauth) |
+| MCP tools | [Tool reference](https://docs.paybox.sh/reference/mcp-tools) |
+| API & endpoints | [API reference](https://docs.paybox.sh/api-reference) |
+| SDK & CLI | [Developer tooling](https://docs.paybox.sh/sdk-cli) |
 
 ## Attribution
 
