@@ -1,5 +1,9 @@
 # Install locally — Node 24 + built-in SQLite
 
+Prefer a ready-to-run download? Follow [Easy start](EASY_START.md). The portable
+ZIP bundles Node.js and needs no Git or npm installation. This page describes
+the developer/source setup, which stores data in the project folder by default.
+
 No PostgreSQL account, Docker, remote database or paid history API is required to
 start. Public history providers can still limit access; a key does not guarantee
 complete lifetime history.

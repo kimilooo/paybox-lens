@@ -1,0 +1,111 @@
+name: Portable Release
+on:
+  push:
+    branches: [main]
+    paths: [release.json]
+  pull_request:
+    paths:
+      - release.json
+      - .github/workflows/release.yml
+      - scripts/**
+      - local/**
+      - tests/package_release_test.py
+      - tests/portable.test.mjs
+      - Start-PayBox-Lens.*
+      - package*.json
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: portable-release-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  validate:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.21.0'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm test
+      - run: python -m unittest discover -s tests -p '*_test.py'
+      - run: npm run build
+      - run: npm run check
+      - run: npm run security
+      - run: npm run release:prepare
+      - name: Scan release source history
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          curl --fail --location --proto '=https' --tlsv1.2 https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz -o /tmp/gitleaks.tar.gz
+          echo '551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  /tmp/gitleaks.tar.gz' | sha256sum --check
+          tar -xzf /tmp/gitleaks.tar.gz -C /tmp gitleaks
+          /tmp/gitleaks git . --redact=100 --no-banner
+  package:
+    needs: validate
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: win-x64
+            os: windows-latest
+          - platform: linux-x64
+            os: ubuntu-latest
+          - platform: darwin-arm64
+            os: macos-latest
+          - platform: darwin-x64
+            os: macos-15-intel
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.21.0'
+          package-manager-cache: false
+      - run: npm run build
+      - run: npm run check
+      - run: npm run release:prepare
+      - name: Build verified portable package
+        run: python scripts/package-release.py --platform ${{ matrix.platform }}
+      - name: Boot the actual ZIP through its native launcher
+        shell: bash
+        run: python scripts/smoke-portable.py release-output/*.zip
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: portable-${{ matrix.platform }}
+          path: |
+            release-output/*.zip
+            release-output/*.sha256
+          compression-level: 0
+          retention-days: 7
+  publish:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: portable-*
+          path: release-output
+          merge-multiple: true
+      - name: Publish checked portable downloads
+        run: python scripts/publish-release.py
+        env:
+          GH_TOKEN: ${{ github.token }}

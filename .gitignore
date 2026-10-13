@@ -17,3 +17,6 @@ paybox-lens-source*.zip
 
 # Public release must never include Site identity.
 .openai/
+runtime/
+release-output/
+__pycache__/
