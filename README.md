@@ -43,9 +43,9 @@ Full walkthrough: [local setup](docs/LOCAL_SETUP.md).
 ## Screenshots
 
 Actual dashboard captures using **fictional demo data**, not a real account.
-These show the workspace UI; the remembered local sign-in flow is described below.
+The Lens Studio interface uses a graphite shell, locally served asset artwork and a transaction inspector beside the activity ledger. The remembered local sign-in flow is described below.
 
-### Overview — purple dark mode
+### Lens Studio — overview & transaction inspector
 
 ![PayBox Lens overview with fictional portfolio values and asset allocation](docs/screenshots/overview.png)
 
@@ -57,9 +57,9 @@ These show the workspace UI; the remembered local sign-in flow is described belo
 | --- | --- |
 | ![Fictional contact with manual tags and notes](docs/screenshots/contacts.png) | ![Private mode hiding balances, identifiers and chart shapes](docs/screenshots/private.png) |
 
-### Light mode
+### Dark mode
 
-![PayBox Lens overview in the purple light theme with fictional data](docs/screenshots/light.png)
+![PayBox Lens overview in the purple dark theme with fictional data](docs/screenshots/light.png)
 
 ## Sign in once, restore the local connection
 
@@ -81,9 +81,13 @@ DB backup. Browser localStorage also keeps these records and is not encrypted.
 Back up both DB/key files privately with the server stopped. No seed phrase,
 private key, raw card secret or password is requested by Lens.
 
+## Lens Studio interaction
+
+Click a recent activity, or focus it and press Enter/Space, to inspect its source, reported fees and plain-English explanation beside the timeline. Use **Labels & full details** for local annotations and available request details. The close button clears the selection; on mobile the inspector appears below the ledger. Light mode is the default for new installations, and saved theme preferences are respected. All asset images are served locally. [Design and artwork provenance](docs/DESIGN.md).
+
 ## Seven pages
 
-1. **Overview** — total wallet USD value, 24h market-move estimate where prices exist, wallet count, X status availability, SOL/ETH/Other allocation, wallet cards and credential approval modes.
+1. **Overview** — total wallet USD value, 24h market-move estimate where prices exist, wallet count, X status availability, SOL/ETH/Other allocation and an interactive transaction inspector. Wallet cards, cash flow and agent approval modes are available in the expandable overview section.
 2. **Portfolio & assets** — symbols, chain, raw and display balances, USD values, allocation and fractional 24h price changes. Search and wallet/chain filters. Dust under $1 and suspicious token names are hidden by default and can be shown. An NFT tab displays NFT records only if the provider supplies them.
 3. **Transactions & activity** — this client's request history plus public on-chain records. Combined type, status, wallet and UTC-date filters; 50-row UI pages; exact hashes/explorer links; `get_request` refresh for this client's request details. Reported fees, gas units, error reasons and swaps remain distinct.
 4. **Reports & analytics** — UTC daily/weekly/monthly groups, incoming/outgoing flows, observed value change, agent activity and portfolio observations. Genuine PDF, XLSX and CSV downloads. Excel includes Summary, Activity, Holdings and Tax worksheet sheets. Missing cost basis or proceeds leave gains unknown.

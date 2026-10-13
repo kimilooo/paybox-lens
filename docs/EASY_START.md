@@ -9,10 +9,10 @@ account or administrator installation is needed.
 
 | Computer | Release asset | Start after extracting |
 | --- | --- | --- |
-| Windows 10/11, x64 | `paybox-lens-v0.9.0-win-x64.zip` | Double-click `Start-PayBox-Lens.cmd` |
-| Apple Silicon Mac | `paybox-lens-v0.9.0-darwin-arm64.zip` | Open `Start-PayBox-Lens.command` |
-| Intel Mac | `paybox-lens-v0.9.0-darwin-x64.zip` | Open `Start-PayBox-Lens.command` |
-| Linux, x64 | `paybox-lens-v0.9.0-linux-x64.zip` | Run `./Start-PayBox-Lens.sh` |
+| Windows 10/11, x64 | `paybox-lens-v0.10.0-win-x64.zip` | Double-click `Start-PayBox-Lens.cmd` |
+| Apple Silicon Mac | `paybox-lens-v0.10.0-darwin-arm64.zip` | Open `Start-PayBox-Lens.command` |
+| Intel Mac | `paybox-lens-v0.10.0-darwin-x64.zip` | Open `Start-PayBox-Lens.command` |
+| Linux, x64 | `paybox-lens-v0.10.0-linux-x64.zip` | Run `./Start-PayBox-Lens.sh` |
 
 Use the named **portable asset**, not GitHub's automatic “Source code” download.
 Extract the entire ZIP to a normal folder before starting; do not run inside the

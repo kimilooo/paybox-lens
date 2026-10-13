@@ -18,3 +18,5 @@ test('Windows CRLF sources build an import-free Worker while served assets retai
   }
  } finally {rmSync(directory,{recursive:true,force:true});}
 });
+
+test('Studio artwork is served locally with image MIME types and read-only methods',async()=>{const {default:worker}=await import('../dist/server/index.js');for(const file of ['sol.svg','eth.svg','usdc.svg','base.svg','studio-atmosphere.jpg']){const r=await worker.fetch(new Request('https://lens.example/assets/'+file));assert.equal(r.status,200);assert.equal(r.headers.get('Content-Type'),file.endsWith('.svg')?'image/svg+xml':'image/jpeg');assert.deepEqual(Buffer.from(await r.arrayBuffer()),readFileSync('frontend/assets/'+file));const head=await worker.fetch(new Request('https://lens.example/assets/'+file,{method:'HEAD'}));assert.equal((await head.arrayBuffer()).byteLength,0);}assert.equal((await worker.fetch(new Request('https://lens.example/assets/sol.svg',{method:'POST'}))).status,405);});
