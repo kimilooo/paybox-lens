@@ -1,0 +1,19 @@
+node_modules/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+data/
+*.sqlite
+*.sqlite-*
+encryption.key
+dist/
+public-release/
+security-results/
+
+# Generated source-download archives
+paybox-lens-source*.zip
+
+# Public release must never include Site identity.
+.openai/

@@ -1,0 +1,20 @@
+{
+  "name": "paybox-lens",
+  "version": "0.8.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.js tests/*.test.mjs",
+    "start": "node scripts/build.mjs && node scripts/local-server.mjs",
+    "start:ephemeral": "node scripts/build.mjs && node scripts/dev-server.mjs",
+    "build": "node scripts/build.mjs",
+    "check": "node scripts/validate-artifact.mjs",
+    "security": "node scripts/security-check.mjs && npm audit --audit-level=low",
+    "release:prepare": "node scripts/prepare-public.mjs"
+  },
+  "license": "MIT",
+  "engines": {"node": ">=24"},
+  "devDependencies": {
+    "linkedom": "^0.18.12"
+  }
+}

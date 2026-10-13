@@ -1,0 +1,34 @@
+import {readSolanaHistory,SOL_PUBLIC_RPCS} from '../frontend/solana-history.js';
+import {detectAddress} from '../frontend/address.js';
+import {parseEvm,parseSolana,networks} from '../frontend/history-data.js';
+const responseHeaders={'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'};
+const error=(status,message)=>Response.json({message},{status,headers:responseHeaders});
+const HISTORY_HOSTS=Object.fromEntries(Object.entries(networks).filter(([,v])=>v.api).map(([k,v])=>[k,v.api]));
+async function providerFetch(url,options={},timeoutMs=20000){const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),timeoutMs);try{const r=await fetch(url,{...options,redirect:'manual',signal:controller.signal});if(r.status===429)throw Error('History provider rate limit. Wait briefly and resume.');if(!r.ok)throw Error(`History provider HTTP ${r.status}.`);const d=await r.json();if(d.error)throw Error(`RPC ${d.error.code??''}: ${String(d.error.message??'Unavailable').slice(0,150)}`);return d;}finally{clearTimeout(timer);}}
+async function solRpc(method,params,rpcs=SOL_PUBLIC_RPCS,deadline=Date.now()+25000){let last;for(const rpc of rpcs){try{const remaining=deadline-Date.now();if(remaining<=0)throw Error('History page time limit. Retry missing details.');const result=(await providerFetch(rpc,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method,params})},Math.min(8000,remaining))).result;if(result==null)throw Error('Transaction or RPC result not available from this provider.');return result;}catch(e){last=e;}}throw Error('Solana '+method+' unavailable: '+last.message);}
+// Keyless Ethereum backup. A source-specific cursor keeps pagination on one index.
+async function routescanHistory(address,page=1){
+ if(!Number.isSafeInteger(page)||page<1||page>100000)throw Error('Invalid Routescan page.');
+ const endpoint=new URL('https://api.routescan.io/v2/network/mainnet/evm/1/etherscan/api');
+ for(const[k,v]of Object.entries({module:'account',action:'txlist',address,page,offset:50,sort:'desc',startblock:0,endblock:99999999}))endpoint.searchParams.set(k,String(v));
+ const d=await providerFetch(endpoint);
+ if(!Array.isArray(d.result)||!(d.status==='1'||d.status==='0'&&d.result.length===0&&/no transactions/i.test(d.message??'')))throw Error('Routescan: '+String(d.message??'Invalid history response.').slice(0,100));
+ const items=d.result.map(r=>({hash:r.hash,from:r.from,to:r.to,value:r.value,gas_used:r.gasUsed,timestamp:/^\d+$/.test(r.timeStamp??'')?new Date(Number(r.timeStamp)*1000).toISOString():null,status:r.isError==='1'||r.txreceipt_status==='0'?'error':'success',fee:{value:/^\d+$/.test(r.gasUsed??'')&&/^\d+$/.test(r.gasPrice??'')?(BigInt(r.gasUsed)*BigInt(r.gasPrice)).toString():null}}));
+ return Response.json({rows:parseEvm(items,address,'ethereum','normal'),next:d.result.length===50?{source:'routescan',page:page+1}:null,count:d.result.length,provider:'Routescan (keyless)',coverage:'Ethereum normal transactions indexed by Routescan. Internal and token transfers are separate sources; exhausted pages do not prove full archival coverage.'},{headers:responseHeaders});
+}
+export async function historyRoute(request,env={}){const configured=env.SOLANA_RPC_URL,deadline=Date.now()+25000;const rpc=(method,params)=>solRpc(method,params,configured?[configured]:SOL_PUBLIC_RPCS,deadline);const url=new URL(request.url);if(request.method!=='POST')return error(405,'POST required.');if(request.headers.get('Origin')!==url.origin)return error(403,'Same-origin request required.');let input;try{const text=await request.text();if(text.length>15000)return error(413,'History request too large.');input=JSON.parse(text);}catch{return error(400,'Invalid history request.');}const {network}=input;const detected=detectAddress(input.address);const address=detected?.address; if(!detected)return error(400,'Wallet address is incomplete or invalid.');if(!detected.networks.includes(network))return error(400,'Wallet address and network do not match.');if(typeof address!=='string'||!networks[network])return error(400,'Choose a supported network and wallet address.');try{
+ if(network==='solana'){
+  if(!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address))return error(400,'Invalid Solana address.');
+  const scanAddress=input.scanAddress??address;if(detectAddress(scanAddress)?.family!=='solana')return error(400,'Invalid scan account.');
+  if(input.before&&!/^[1-9A-HJ-NP-Za-km-z]{70,100}$/.test(input.before))return error(400,'Invalid signature cursor.');
+  if(input.action==='details'&&!/^[1-9A-HJ-NP-Za-km-z]{70,100}$/.test(input.signature??''))return error(400,'Invalid transaction signature.');
+  const result=await readSolanaHistory({...input,address},rpc);return Response.json(result,{headers:responseHeaders});
+ }
+ if(!/^0x[a-fA-F0-9]{40}$/.test(address))return error(400,'Invalid EVM address.');
+ const kind=input.kind??'normal';const paths={normal:'transactions',token:'token-transfers',internal:'internal-transactions'};if(!paths[kind])return error(400,'Invalid history category.');
+ if(input.cursor?.source){if(input.cursor.source!=='routescan'||network!=='ethereum'||kind!=='normal'||!Number.isSafeInteger(input.cursor.page)||input.cursor.page<1||input.cursor.page>100000||Object.keys(input.cursor).length!==2)return error(400,'Invalid history source cursor.');return await routescanHistory(address,input.cursor.page);}
+ const endpoint=new URL(HISTORY_HOSTS[network]+'/api/v2/addresses/'+address+'/'+paths[kind]);
+ if(input.cursor){if(typeof input.cursor!=='object'||Array.isArray(input.cursor))return error(400,'Invalid cursor.');for(const[k,v]of Object.entries(input.cursor)){if(!/^[a-z_]{1,40}$/.test(k)||!['string','number','boolean'].includes(typeof v)||String(v).length>150)return error(400,'Invalid cursor field.');endpoint.searchParams.set(k,String(v));}}
+ if(env.BLOCKSCOUT_API_KEY){endpoint.host='api.blockscout.com';endpoint.pathname='/'+String(networks[network].chainId)+endpoint.pathname;endpoint.searchParams.set('apikey',env.BLOCKSCOUT_API_KEY);}
+ let d;try{d=await providerFetch(endpoint);if(!Array.isArray(d.items))throw Error('Invalid explorer response.');}catch(e){if(network==='ethereum'&&kind==='normal'&&!input.cursor)return await routescanHistory(address);if(network==='base'&&!env.BLOCKSCOUT_API_KEY)throw Error('Base public history source is unavailable. Blockscout currently documents paid Base API access; check the explorer or configure an authorized server provider.');throw e;}return Response.json({rows:parseEvm(d.items,address,network,kind),next:d.next_page_params??null,count:d.items.length,provider:'Blockscout',coverage:'Indexed normal, internal and token transfer records on the selected network. Explorer coverage is not a wallet creation timestamp.'},{headers:responseHeaders});
+ }catch(e){return error(502,String(e.message??'History provider unavailable.').slice(0,250));}}

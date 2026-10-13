@@ -1,0 +1,5 @@
+const PREFIX='lens-snapshots-v1:';
+export function snapshotKey(wallets){return PREFIX+wallets.map(w=>w.address?.startsWith('0x')?w.address.toLowerCase():w.address).filter(Boolean).sort().join('|');}
+export function readSnapshots(storage,key){try{const rows=JSON.parse(storage.getItem(key)??'[]');return Array.isArray(rows)?rows.filter(r=>Number.isFinite(r.time)&&Number.isFinite(r.value)&&r.value>=0).slice(-2000):[];}catch{return[];}}
+export function saveSnapshot(storage,key,value,time=Date.now()){if(!Number.isFinite(value)||value<0||key===PREFIX)return readSnapshots(storage,key);let rows=readSnapshots(storage,key);const bucket=Math.floor(time/900000);const item={time,value};if(rows.length&&Math.floor(rows.at(-1).time/900000)===bucket)rows[rows.length-1]=item;else rows.push(item);rows=rows.filter(r=>r.time>=time-90*86400000).slice(-2000);storage.setItem(key,JSON.stringify(rows));return rows;}
+export function snapshotChange(rows){if(rows.length<2)return null;return rows.at(-1).value-rows[0].value;}
