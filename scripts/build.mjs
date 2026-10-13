@@ -4,11 +4,14 @@ const assets={};for(const file of ['index.html','style.css','app.js','data.js','
 const payboxLogo=readFileSync('frontend/assets/paybox-logo.jpg').toString('base64');
 const iconPng=readFileSync('frontend/assets/lens-icons.png').toString('base64');
 const assetServer=`const ASSETS=${JSON.stringify(assets)};\nfunction serveAsset(path,method){if(path==='/assets/paybox-logo.jpg'){const bytes=Uint8Array.from(atob("${payboxLogo}"),c=>c.charCodeAt(0));return new Response(method==='HEAD'?null:bytes,{headers:{...responseHeaders,'Content-Type':'image/jpeg'}});}if(path==='/assets/lens-icons.png'){const bytes=Uint8Array.from(atob("${iconPng}"),c=>c.charCodeAt(0));return new Response(method==='HEAD'?null:bytes,{headers:{...responseHeaders,'Content-Type':'image/png'}});}if(!['GET','HEAD'].includes(method))return error(405,'GET required.');const text=ASSETS[path];if(text===undefined)return error(404,'Asset not found.');const type=path.endsWith('.js')?'text/javascript; charset=utf-8':path.endsWith('.css')?'text/css; charset=utf-8':'text/html; charset=utf-8';return new Response(method==='HEAD'?null:text,{headers:{...responseHeaders,'Content-Type':type,'Content-Security-Policy':\"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://api.mainnet.solana.com https://solana.api.onfinality.io https://solana-rpc.publicnode.com https://api.mainnet-beta.solana.com https://base.blockscout.com https://eth.blockscout.com https://api.routescan.io https://explorer.optimism.io https://arbitrum.blockscout.com https://polygon.blockscout.com; object-src 'none'; base-uri 'self'; form-action 'self' https://api.paybox.sh https://app.paybox.sh\"}});}`;
-const addressCode=readFileSync('frontend/address.js','utf8').replaceAll('export ','');
-const historyData=readFileSync('frontend/history-data.js','utf8').replaceAll('export ','');
-const solanaHistory=readFileSync('frontend/solana-history.js','utf8').replace(/^import .*?;\n/gm,'').replaceAll('export ','');
-const historyServer=readFileSync('worker/history.js','utf8').replace(/^import .*?;\n/gm,'').replace("const responseHeaders={'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'};\nconst error=(status,message)=>Response.json({message},{status,headers:responseHeaders});\n",'').replaceAll('export ','');
-const source=addressCode+'\n'+historyData+'\n'+solanaHistory+'\n'+historyServer+'\n'+readFileSync('worker/index.js','utf8').replace(/^import .*?;\n/gm,'').replace("function serveAsset(){return error(404,'Asset not found.');}",()=>assetServer);
+// Normalize bundled modules from Windows checkouts before stripping imports.
+// Served frontend assets above retain their original bytes.
+const moduleSource=path=>readFileSync(path,'utf8').replaceAll('\r\n','\n');
+const addressCode=moduleSource('frontend/address.js').replaceAll('export ','');
+const historyData=moduleSource('frontend/history-data.js').replaceAll('export ','');
+const solanaHistory=moduleSource('frontend/solana-history.js').replace(/^import .*?;\n/gm,'').replaceAll('export ','');
+const historyServer=moduleSource('worker/history.js').replace(/^import .*?;\n/gm,'').replace("const responseHeaders={'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'};\nconst error=(status,message)=>Response.json({message},{status,headers:responseHeaders});\n",'').replaceAll('export ','');
+const source=addressCode+'\n'+historyData+'\n'+solanaHistory+'\n'+historyServer+'\n'+moduleSource('worker/index.js').replace(/^import .*?;\n/gm,'').replace("function serveAsset(){return error(404,'Asset not found.');}",()=>assetServer);
 rmSync('dist',{recursive:true,force:true});
 mkdirSync('dist/server',{recursive:true});mkdirSync('dist/.openai',{recursive:true});writeFileSync('dist/server/index.js',source);writeFileSync('dist/.openai/hosting.json',existsSync('.openai/hosting.json')?readFileSync('.openai/hosting.json'):'{}');
 console.log('Built standalone dashboard Worker.');
