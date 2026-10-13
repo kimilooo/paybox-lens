@@ -30,7 +30,7 @@ only a general description and request a private reporting channel.
 
 GitHub has no general “firewall passed / malware-free” certificate for a repository.
 The included workflows run tests, npm advisory checks, a publication-content
-check, CodeQL JavaScript analysis and pull-request dependency review. Dependabot
+check, CodeQL JavaScript/Python analysis and pull-request dependency review. Dependabot
 updates npm packages and pinned Actions. Public repositories also receive GitHub
 secret scanning; enable push protection in repository settings when available.
 

@@ -43,6 +43,13 @@ Documentation-only changes do not need new tests. Check Markdown links and asset
 and run the publication check. The repository's CI also runs on Linux and Windows;
 CodeQL, Secret Check and Dependency Review provide additional review evidence.
 
+Portable releases also use Python 3.10+ with only its standard library. Run
+`python -m unittest discover -s tests -p '*_test.py'` for packaging checks.
+`npm run release:pack -- --platform linux-x64` builds a portable ZIP after checking
+the official Node archive pin. Change the platform for another supported target.
+The release workflow boots Windows, Linux, Apple Silicon and Intel Mac packages
+through their native launchers before publishing. See [Easy start](docs/EASY_START.md).
+
 The public-source manifest lives in `SHA256SUMS`. When changing release files,
 run `npm run release:prepare` and copy `public-release/SHA256SUMS` to the repository
 root. Keep `public-release/`, generated `dist/`, local `data/`, keys and environment

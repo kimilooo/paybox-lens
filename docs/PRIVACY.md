@@ -1,5 +1,9 @@
 # Privacy and data flow
 
+Portable downloads store SQLite/key files in your user application-data folder
+outside the extracted app version. Source-mode `npm start` defaults to `data/`
+inside the project. Both remain on your device; see [Easy start](EASY_START.md).
+
 > **Maintainer statement:** “When you install and run PayBox Lens locally on your
 > own device, I, Kimiloo, do not receive your financial data, access tokens,
 > contacts or private notes. There is no maintainer-controlled database,

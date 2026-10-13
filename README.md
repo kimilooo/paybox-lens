@@ -16,6 +16,14 @@ community project; not an official PayBox product. MIT-licensed source.
 
 ## Quick start
 
+**For beginners:** download the matching **portable ZIP** from
+[Releases](https://github.com/kimilooo/paybox-lens/releases/latest), extract it,
+and use its launcher. On Windows, double-click `Start-PayBox-Lens.cmd`.
+The ZIP includes Node.js and the ready-to-run app; no Git, npm install or database
+setup is required. [Easy start, platform choices and upgrades](docs/EASY_START.md).
+
+### From source
+
 Install Node.js **24+** and Git, then:
 
 ```sh
@@ -65,6 +73,9 @@ stay only in the local server's memory. Disconnect removes that saved connection
 
 Local records are stored in `data/lens.sqlite`, encrypted with a separate local
 `data/encryption.key`. Both stay on your device and are excluded from releases.
+These are the source-mode defaults. Portable releases keep the DB/key in your
+user's application-data directory so replacing the ZIP folder preserves them;
+see [portable data paths](docs/EASY_START.md#local-data-survives-upgrades).
 Contacts, labels, public chain history, USD snapshots and preferences have a local
 DB backup. Browser localStorage also keeps these records and is not encrypted.
 Back up both DB/key files privately with the server stopped. No seed phrase,
@@ -105,7 +116,7 @@ private key, raw card secret or password is requested by Lens.
 [Security policy](SECURITY.md)
 
 The workflows run tests, npm advisory checks, publication checks, CodeQL
-JavaScript analysis and PR dependency review; Dependabot maintains dependencies
+JavaScript/Python analysis and PR dependency review; Dependabot maintains dependencies
 and Actions. Review results for the exact commit you download. There is no GitHub
 “firewall passed” or malware-free certificate, and passing scans is not a proof
 that every vulnerability or malicious behavior is absent.
