@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.10.0
+
+- Lens Studio redesign: graphite shell, horizontal navigation, precise light/dark and monochrome themes.
+- Side-by-side recent-activity inspector with reported source, fee, status and plain-English explanation.
+- Keyboard selection, inspector close, recent-activity search and mobile stacking.
+- Local schematic asset SVGs and original graphite/glass background artwork; retained PayBox logo.
+- Updated demo screenshots, design documentation and portable beginner guide.
+- Existing source evidence, history coverage, local database and privacy boundaries retained.
+
 ## 0.9.0
 
 - Portable ZIP downloads for Windows x64, Linux x64, Apple Silicon and Intel Macs.
