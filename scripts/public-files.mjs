@@ -1,7 +1,7 @@
 import {readdirSync,lstatSync} from 'node:fs';
 import {join} from 'node:path';
 export const directories=['frontend','worker','local','scripts','tests','docs','.github'];
-export const rootFiles=['README.md','LICENSE','SECURITY.md','package.json','package-lock.json','sample.json','.env.example','.gitignore'];
+export const rootFiles=['README.md','CONTRIBUTING.md','LICENSE','SECURITY.md','package.json','package-lock.json','sample.json','.env.example','.gitignore'];
 export function publicFiles(root) {
  const out=[];
  function visit(path){const stat=lstatSync(join(root,path));if(stat.isSymbolicLink())throw Error('Symlinks are not allowed in a public release: '+path);if(stat.isDirectory()){for(const name of readdirSync(join(root,path)))visit(join(path,name));}else{if(!/\.(?:js|mjs|md|json|yml|yaml|html|css|png|jpg)$/.test(path))throw Error('Unexpected public-source file: '+path);out.push(path);}}
